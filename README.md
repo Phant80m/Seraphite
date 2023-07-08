@@ -1,0 +1,2 @@
+# Seraphite
+Dotfile  /  config manager
