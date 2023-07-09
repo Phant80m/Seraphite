@@ -1,32 +1,41 @@
 #![feature(let_chains)]
 use clap::{Parser, Subcommand};
 use owo_colors::OwoColorize;
+use seraphite::help;
 use std::{env, fs, os::unix::fs::symlink};
-
 const DEST_DIR: &str = "./config";
 const SOURCE_DIR: &str = "./dir";
 #[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
+#[command(author, version, about, long_about = None, disable_help_flag = true, disable_help_subcommand = true)]
+#[command(arg_required_else_help = false)]
 struct Args {
     #[command(subcommand)]
-    subcommand: SubCommand,
+    subcommand: Option<SubCommand>,
 }
 #[derive(Subcommand, Debug)]
 enum SubCommand {
+    Help,
     Stash,
     Unstash,
 }
 fn main() {
+    let help = help();
     let args = Args::parse();
     match args.subcommand {
-        SubCommand::Stash => linker(),
-        SubCommand::Unstash => {
+        Some(SubCommand::Stash) => linker(),
+        Some(SubCommand::Unstash) => {
             if let Err(e) = remove_symbolic_links_in_directory(DEST_DIR) {
                 println!("Something went wrong when removing symbolic links");
                 if let Ok(rust_backtrace) = env::var("RUST_BACKTRACE") && rust_backtrace == "1" {
                     println!("{:?}", e);
                 }
             }
+        }
+        Some(SubCommand::Help) => {
+            println!("{help}");
+        }
+        None => {
+            println!("{help}");
         }
     }
 }
@@ -43,8 +52,11 @@ fn linker() {
 
         match symlink(source_path, dest_file.clone()) {
             Ok(push) => push,
-            Err(_) => {
+            Err(e) => {
                 println!("Files may already exist");
+                if let Ok(rust_backtrace) = env::var("RUST_BACKTRACE") && rust_backtrace == "1" {
+                    println!("{:?}", e);
+                }
                 break;
             }
         }
