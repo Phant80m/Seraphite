@@ -1,0 +1,10 @@
+[package]
+name = "seraphite"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.3.23", features = ["derive"] }
+owo-colors = "3.5.0"
+symlink = "0.1.0"
+which = "3.1"
