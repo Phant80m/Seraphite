@@ -3,7 +3,7 @@ use owo_colors::OwoColorize;
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 use std::{fs, io};
-fn copy_directory(source: &Path, dest: &Path) -> Result<(), Box<dyn std::error::Error>> {
+fn copy_directory(source: &Path, dest: &Path) -> Result<(), io::Error> {
     for entry in fs::read_dir(source)? {
         let entry = entry?;
         let source_path = entry.path();
@@ -19,6 +19,19 @@ fn copy_directory(source: &Path, dest: &Path) -> Result<(), Box<dyn std::error::
 
     Ok(())
 }
+fn create_backup(source_dir: &Path, backup_dir: &Path) -> io::Result<()> {
+    fs::create_dir_all(&backup_dir)?;
+
+    let current_datetime = chrono::Local::now();
+    let backup_folder_name = format!("backup-{}", current_datetime.format("%Y-%m-%d_%H-%M-%S"));
+    let dest_dir = backup_dir.join("backup").join(backup_folder_name);
+
+    copy_directory(&source_dir, &dest_dir)?;
+
+    println!("{} Backup created!", "[  ]".green().bold());
+
+    Ok(())
+}
 impl Linker {
     pub fn parse(i: PathBuf, d: PathBuf) -> Self {
         Self {
@@ -29,7 +42,27 @@ impl Linker {
     pub fn create_link(&self) -> io::Result<()> {
         let path = fs::read_dir(&self.input)?;
         let backup_dir = ".seraphite".home_path();
-        if backup_dir.exists() { /* to be added */
+        let source = format!("{}/.config", std::env::var("HOME").unwrap());
+        let source_dir = Path::new(&source);
+        if backup_dir.exists() {
+            println!(
+                "{} would you like to create a backup? y / n",
+                "[  ]".yellow().bold()
+            );
+            let mut backup: String = String::new();
+            io::stdin()
+                .read_line(&mut backup)
+                .expect("failed to read user line!");
+            match backup.trim() {
+                "y" => create_backup(&source_dir, &backup_dir)?,
+                "n" => {
+                    println!("{} Proceeding without backup!", "[  ]".yellow().bold());
+                }
+                _ => {
+                    eprintln!("{} input was not y / no!", "[  ]".red().bold());
+                    std::process::exit(0)
+                }
+            }
         } else {
             println!(
                 "{} Backup does not exist! would you like to create one? y / n",
@@ -40,31 +73,14 @@ impl Linker {
                 .read_line(&mut backup)
                 .expect("failed to read user line!");
             match backup.trim() {
-                "y" => {
-                    fs::create_dir(&backup_dir)?;
-                    let source = format!("{}/.config", std::env::var("HOME").unwrap());
-                    let source_dir = Path::new(&source);
-                    let dest_dir = PathBuf::from(&backup_dir.join("backup"));
-
-                    for entry in fs::read_dir(source_dir)? {
-                        let entry = entry?;
-                        let source_path = entry.path();
-
-                        let dest_path = dest_dir.join(source_path.file_name().unwrap());
-
-                        if source_path.is_file() {
-                            fs::copy(&source_path, &dest_path)?;
-                        } else if source_path.is_dir() {
-                            fs::create_dir_all(&dest_path)?;
-                            copy_directory(&source_path, &dest_path).unwrap();
-                        }
-                    }
-                    println!("{} Backup created!", "[  ]".green().bold(),);
-                }
+                "y" => create_backup(&source_dir, &backup_dir)?,
                 "n" => {
                     println!("{} Proceeding without backup!", "[  ]".yellow().bold());
                 }
-                _ => println!("{} input was not y / no!", "[  ]".red().bold(),),
+                _ => {
+                    eprintln!("{} input was not y / no!", "[  ]".red().bold());
+                    std::process::exit(0)
+                }
             }
         }
         for entry in path {

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+chrono = "0.4.26"
 clap = { version = "4.3.23", features = ["derive"] }
 owo-colors = "3.5.0"
-symlink = "0.1.0"
 which = "3.1"
