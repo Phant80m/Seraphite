@@ -1,9 +1,12 @@
+use std::ffi::OsString;
+
 use {
     super::{Linker, ToPathbuf},
     crate::{error, success, warning},
     anyhow::Result,
     owo_colors::OwoColorize,
     std::{
+        collections::HashSet,
         fs, io,
         os::unix::fs::symlink,
         path::{Path, PathBuf},
@@ -40,17 +43,43 @@ fn create_backup(source_dir: &Path, backup_dir: &Path) -> Result<()> {
     Ok(())
 }
 impl Linker {
-    pub fn parse(i: PathBuf, d: PathBuf) -> Self {
+    pub fn new(i: PathBuf, d: PathBuf) -> Self {
+        let mut input_inodes: HashSet<OsString> = HashSet::new();
+        for dir in i
+            .read_dir()
+            .expect(&format!("failed to create a Hashset of {}", i.display()))
+        {
+            let dir = dir.unwrap().path();
+            input_inodes.insert(dir.file_name().unwrap().to_owned());
+        }
+        let mut dest_inodes: HashSet<OsString> = HashSet::new();
+        for dir in d
+            .read_dir()
+            .expect(&format!("failed to create a Hashset of {}", i.display()))
+        {
+            let dir = dir.unwrap().path();
+            dest_inodes.insert(dir.file_name().unwrap().to_os_string());
+        }
+
         Self {
             input: i,
             destination: d,
+            input_inodes,
+            dest_inodes,
         }
     }
     pub fn create_link(&self) -> Result<()> {
-        let path = fs::read_dir(&self.input)?;
+        let path = match fs::read_dir(&self.input) {
+            Ok(read_dir) => read_dir,
+            Err(e) => {
+                error!("Error finding .config in the dotfile directory");
+                return Err(e.into());
+            }
+        };
         let backup_dir = ".seraphite".home_path();
         let source = format!("{}/.config", std::env::var("HOME").unwrap());
         let source_dir = Path::new(&source);
+
         if backup_dir.exists() {
             warning!("would you like to create a backup? y / n");
             let mut backup: String = String::new();
@@ -86,10 +115,16 @@ impl Linker {
         }
         for entry in path {
             // remove unwrap later on:
-            let entry = entry?.path().canonicalize().unwrap();
+            let entry = entry?.path().canonicalize()?;
             let entry_filename = entry.file_name().unwrap();
             let destination_entry = self.destination.join(entry_filename);
-            let pretty = format!("~/.config/{}", entry_filename.to_str().unwrap());
+            let pretty = format!(
+                "~/.config/{}",
+                entry_filename.to_str().expect(&format!(
+                    "failed to decode path into utf8: {}",
+                    entry.to_string_lossy()
+                ))
+            );
             if let Err(e) = symlink(&entry, &destination_entry) {
                 error!(
                     "failed to link files into: {} {} {:?}",
@@ -129,22 +164,25 @@ impl Linker {
         Ok(())
     }
     pub fn remove_link(&self) -> Result<()> {
-        if !self.destination.exists() {
-            return Ok(());
-        }
-        for entry in fs::read_dir(&self.destination)? {
-            let entry = entry?;
-            match entry.path().symlink_metadata() {
+        for name in self.dest_inodes.intersection(&self.input_inodes) {
+            let config_link = self.destination.join(name);
+            if !config_link.exists() {
+                continue;
+            }
+            if !config_link.is_symlink() {
+                error!("refusing to delete a non Symlink");
+            }
+            match config_link.symlink_metadata() {
                 Ok(metadata) => {
                     if metadata.file_type().is_symlink() {
-                        fs::remove_file(&entry.path())?;
-                        success!("Removed symbolic link at: {}", entry.path().display());
+                        fs::remove_file(&config_link)?;
+                        success!("Removed symbolic link at: {}", config_link.display());
                     }
                 }
                 Err(_) => {
                     error!(
                         "Failed to get symlink metadata for {}",
-                        entry.path().display()
+                        config_link.display()
                     );
                 }
             }

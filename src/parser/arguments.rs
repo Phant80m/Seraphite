@@ -13,16 +13,22 @@ impl Args {
             println!("Input path: {:?}", "./tests/source".home_path());
             println!("Destination path: {:?}", "test/config".home_path());
         }
-        let linker = Linker::parse("dotfiles/.config/".home_path(), ".config".home_path());
-        match self.subcommand {
-            Command::Tether => {
+        match &self.subcommand {
+            Command::Tether { dot_dir } => {
+                let dot_path = dot_dir
+                    .clone()
+                    .unwrap_or(format!("{}/dotfiles/", std::env::var("HOME").unwrap()))
+                    .path();
+                let dot_path = dot_path.join(".config");
+                let linker = Linker::new(dot_path, ".config".home_path());
                 linker.create_link()?;
             }
             Command::Untether => {
+                let linker = Linker::new("dotfiles/.config/".home_path(), ".config".home_path());
                 linker.remove_link()?;
             }
             Command::Sync { no_confirm } => {
-                sync_deps(no_confirm);
+                sync_deps(*no_confirm);
             }
         }
         Ok(())

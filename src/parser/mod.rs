@@ -10,7 +10,11 @@ pub struct Args {
 pub enum Command {
     #[clap(name = "tether")]
     /// -> Link dotfiles into the config directory
-    Tether,
+    Tether {
+        #[arg(short, long)]
+        /// -> specify your dotfiles repo location, (is a bit broken)
+        dot_dir: Option<String>,
+    },
     #[clap(name = "untether")]
     /// -> unink dotfiles from the config directory
     Untether,
