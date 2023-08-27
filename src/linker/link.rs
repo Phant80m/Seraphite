@@ -1,9 +1,16 @@
-use super::{Linker, ToPathbuf};
-use owo_colors::OwoColorize;
-use std::os::unix::fs::symlink;
-use std::path::{Path, PathBuf};
-use std::{fs, io};
-fn copy_directory(source: &Path, dest: &Path) -> Result<(), io::Error> {
+use {
+    super::{Linker, ToPathbuf},
+    crate::{error, success, warning},
+    anyhow::Result,
+    owo_colors::OwoColorize,
+    std::{
+        fs, io,
+        os::unix::fs::symlink,
+        path::{Path, PathBuf},
+    },
+};
+
+fn copy_directory(source: &Path, dest: &Path) -> Result<()> {
     for entry in fs::read_dir(source)? {
         let entry = entry?;
         let source_path = entry.path();
@@ -19,16 +26,16 @@ fn copy_directory(source: &Path, dest: &Path) -> Result<(), io::Error> {
 
     Ok(())
 }
-fn create_backup(source_dir: &Path, backup_dir: &Path) -> io::Result<()> {
-    fs::create_dir_all(&backup_dir)?;
+fn create_backup(source_dir: &Path, backup_dir: &Path) -> Result<()> {
+    fs::create_dir_all(backup_dir)?;
 
     let current_datetime = chrono::Local::now();
     let backup_folder_name = format!("backup-{}", current_datetime.format("%Y-%m-%d_%H-%M-%S"));
     let dest_dir = backup_dir.join("backup").join(backup_folder_name);
 
-    copy_directory(&source_dir, &dest_dir)?;
+    copy_directory(source_dir, &dest_dir)?;
 
-    println!("{} Backup created!", "[  ]".green().bold());
+    success!("Backup created!");
 
     Ok(())
 }
@@ -39,46 +46,40 @@ impl Linker {
             destination: d,
         }
     }
-    pub fn create_link(&self) -> io::Result<()> {
+    pub fn create_link(&self) -> Result<()> {
         let path = fs::read_dir(&self.input)?;
         let backup_dir = ".seraphite".home_path();
         let source = format!("{}/.config", std::env::var("HOME").unwrap());
         let source_dir = Path::new(&source);
         if backup_dir.exists() {
-            println!(
-                "{} would you like to create a backup? y / n",
-                "[  ]".yellow().bold()
-            );
+            warning!("would you like to create a backup? y / n");
             let mut backup: String = String::new();
             io::stdin()
                 .read_line(&mut backup)
                 .expect("failed to read user line!");
             match backup.trim() {
-                "y" => create_backup(&source_dir, &backup_dir)?,
+                "y" => create_backup(source_dir, &backup_dir)?,
                 "n" => {
-                    println!("{} Proceeding without backup!", "[  ]".yellow().bold());
+                    warning!("Proceeding without backup!");
                 }
                 _ => {
-                    eprintln!("{} input was not y / no!", "[  ]".red().bold());
+                    error!("input was not y / no!");
                     std::process::exit(0)
                 }
             }
         } else {
-            println!(
-                "{} Backup does not exist! would you like to create one? y / n",
-                "[  ]".yellow().bold()
-            );
+            warning!("Backup does not exist! would you like to create one? y / n");
             let mut backup: String = String::new();
             io::stdin()
                 .read_line(&mut backup)
                 .expect("failed to read user line!");
             match backup.trim() {
-                "y" => create_backup(&source_dir, &backup_dir)?,
+                "y" => create_backup(source_dir, &backup_dir)?,
                 "n" => {
-                    println!("{} Proceeding without backup!", "[  ]".yellow().bold());
+                    warning!("Proceeding without backup!");
                 }
                 _ => {
-                    eprintln!("{} input was not y / no!", "[  ]".red().bold());
+                    error!("input was not y / no!");
                     std::process::exit(0)
                 }
             }
@@ -90,44 +91,35 @@ impl Linker {
             let destination_entry = self.destination.join(entry_filename);
             let pretty = format!("~/.config/{}", entry_filename.to_str().unwrap());
             if let Err(e) = symlink(&entry, &destination_entry) {
-                println!(
-                    "{} failed to link files into: {} {} {:?}",
-                    "[  ]".red().bold(),
+                error!(
+                    "failed to link files into: {} {} {:?}",
                     pretty,
                     "->".cyan().bold(),
                     e.bold().red()
                 );
                 if destination_entry.exists() {
                     if !&destination_entry.is_dir() {
-                        print!(
-                            "{} Overriden: {}",
-                            "[  ]".yellow().bold(),
-                            &destination_entry.display()
-                        );
+                        warning!("Overriden: {}", &destination_entry.display());
                         fs::remove_file(&destination_entry)?;
                     } else {
-                        print!(
-                            "{} Overriden: {}",
-                            "[  ]".yellow().bold(),
+                        warning!(
+                            "Overriden: {}, attempting to link again!",
                             &destination_entry.display()
                         );
                         fs::remove_dir_all(&destination_entry)?;
                     }
                 }
-                println!(", attempting to link again!");
                 if let Err(e) = symlink(&entry, &destination_entry) {
-                    println!(
-                        "{} failed to link files into: {} {} {:?}",
-                        "[  ]".red().bold(),
+                    error!(
+                        "failed to link files into: {} {} {:?}",
                         pretty,
                         "->".cyan().bold(),
                         e.bold().red()
                     );
                 }
             } else {
-                println!(
-                    "{} Linked: {} {} {}",
-                    "[  ]".green().bold(),
+                success!(
+                    "Linked: {} {} {}",
                     entry.clone().display(),
                     "->".cyan().bold(),
                     destination_entry.clone().display()
@@ -136,7 +128,7 @@ impl Linker {
         }
         Ok(())
     }
-    pub fn remove_link(&self) -> io::Result<()> {
+    pub fn remove_link(&self) -> Result<()> {
         if !self.destination.exists() {
             return Ok(());
         }
@@ -146,15 +138,11 @@ impl Linker {
                 Ok(metadata) => {
                     if metadata.file_type().is_symlink() {
                         fs::remove_file(&entry.path())?;
-                        println!(
-                            "{} Removed symbolic link at: {}",
-                            "[  ]".green().bold(),
-                            entry.path().display()
-                        );
+                        success!("Removed symbolic link at: {}", entry.path().display());
                     }
                 }
                 Err(_) => {
-                    println!(
+                    error!(
                         "Failed to get symlink metadata for {}",
                         entry.path().display()
                     );

@@ -1,6 +1,6 @@
+use anyhow::Result;
 use seraphite::parser::Args;
-use std::io;
-fn main() -> io::Result<()> {
+fn main() -> Result<()> {
     let args = Args::build();
     args.handle(false)?;
     Ok(())

@@ -1,4 +1,5 @@
 use crate::linker::ToPathbuf;
+use crate::{error, warning};
 use owo_colors::OwoColorize;
 use std::fs;
 use std::process::{Command, Stdio};
@@ -6,15 +7,12 @@ use which::which;
 
 pub fn sync_deps(no_confirm: bool) {
     if !"dotfiles/dependencies".home_path().exists() {
-        println!("{} Dependency file not found!", "[  ]".red().bold(),);
+        error!("Dependency file not found!");
         return;
     }
     let paru = which("paru").unwrap_or_default();
     if !paru.exists() {
-        println!(
-            "{} Paru not found in path, is it installed?",
-            "[  ]".red().bold(),
-        );
+        error!("Paru not found in path, is it installed?");
 
         return;
     }
@@ -29,11 +27,7 @@ pub fn sync_deps(no_confirm: bool) {
                 .unwrap();
 
             let status = cmd.wait();
-            println!(
-                "{} Exited with status: {}",
-                "[  ]".yellow().bold(),
-                status.unwrap().yellow().bold()
-            );
+            warning!("Exited with status: {}", status.unwrap().yellow().bold());
         }
     }
     for line in file.lines() {
@@ -45,10 +39,6 @@ pub fn sync_deps(no_confirm: bool) {
             .unwrap();
 
         let status = cmd.wait();
-        println!(
-            "{} Exited with status: {}",
-            "[  ]".yellow().bold(),
-            status.unwrap().yellow().bold()
-        );
+        warning!("Exited with status: {}", status.unwrap().yellow().bold());
     }
 }

@@ -1,14 +1,14 @@
 use super::{Args, Command};
 use crate::linker::{Linker, ToPathbuf};
 use crate::sync::sync_deps;
+use anyhow::Result;
 use clap::Parser;
-use std::io;
 
 impl Args {
     pub fn build() -> Self {
         Args::parse()
     }
-    pub fn handle(&self, dbg: bool) -> io::Result<()> {
+    pub fn handle(&self, dbg: bool) -> Result<()> {
         if dbg {
             println!("Input path: {:?}", "./tests/source".home_path());
             println!("Destination path: {:?}", "test/config".home_path());
