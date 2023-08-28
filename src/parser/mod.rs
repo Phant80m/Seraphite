@@ -14,6 +14,9 @@ pub enum Command {
         #[arg(short, long)]
         /// -> specify your dotfiles repo location, (is a bit broken)
         dot_dir: Option<String>,
+        #[arg(short, long)]
+        /// -> specify which config you want to use, inside your dotfile repo
+        config: Option<String>,
     },
     #[clap(name = "untether")]
     /// -> unink dotfiles from the config directory
@@ -21,7 +24,7 @@ pub enum Command {
     #[clap(name = "sync")]
     /// -> install dependencies from dependency file
     Sync {
-        #[clap(long)]
+        #[clap(short = 'y', long)]
         no_confirm: bool,
     },
 }

@@ -13,53 +13,23 @@ use {
     },
 };
 
-fn copy_directory(source: &Path, dest: &Path) -> Result<()> {
-    for entry in fs::read_dir(source)? {
-        let entry = entry?;
-        let source_path = entry.path();
-        let dest_path = dest.join(source_path.file_name().unwrap());
-
-        if source_path.is_file() {
-            fs::copy(&source_path, &dest_path)?;
-        } else if source_path.is_dir() {
-            fs::create_dir_all(&dest_path)?;
-            copy_directory(&source_path, &dest_path)?;
-        }
-    }
-
-    Ok(())
-}
-fn create_backup(source_dir: &Path, backup_dir: &Path) -> Result<()> {
-    fs::create_dir_all(backup_dir)?;
-
-    let current_datetime = chrono::Local::now();
-    let backup_folder_name = format!("backup-{}", current_datetime.format("%Y-%m-%d_%H-%M-%S"));
-    let dest_dir = backup_dir.join("backup").join(backup_folder_name);
-
-    copy_directory(source_dir, &dest_dir)?;
-
-    success!("Backup created!");
-
-    Ok(())
-}
 impl Linker {
     pub fn new(i: PathBuf, d: PathBuf) -> Self {
-        let mut input_inodes: HashSet<OsString> = HashSet::new();
-        for dir in i
-            .read_dir()
-            .expect(&format!("failed to create a Hashset of {}", i.display()))
-        {
-            let dir = dir.unwrap().path();
-            input_inodes.insert(dir.file_name().unwrap().to_owned());
-        }
-        let mut dest_inodes: HashSet<OsString> = HashSet::new();
-        for dir in d
-            .read_dir()
-            .expect(&format!("failed to create a Hashset of {}", i.display()))
-        {
-            let dir = dir.unwrap().path();
-            dest_inodes.insert(dir.file_name().unwrap().to_os_string());
-        }
+        let to_hashset = |path: &PathBuf| -> HashSet<OsString> {
+            path.read_dir()
+                .unwrap_or_else(|e| {
+                    error!("Failed to read directory {}: {}", path.display(), e);
+                    std::process::exit(0)
+                })
+                .filter_map(|entry| {
+                    entry
+                        .ok()
+                        .map(|dir| dir.path().file_name().unwrap().to_owned())
+                })
+                .collect()
+        };
+        let input_inodes = to_hashset(&i);
+        let dest_inodes = to_hashset(&d);
 
         Self {
             input: i,
@@ -87,7 +57,7 @@ impl Linker {
                 .read_line(&mut backup)
                 .expect("failed to read user line!");
             match backup.trim() {
-                "y" => create_backup(source_dir, &backup_dir)?,
+                "y" => Self::create_backup(source_dir, &backup_dir)?,
                 "n" => {
                     warning!("Proceeding without backup!");
                 }
@@ -103,7 +73,7 @@ impl Linker {
                 .read_line(&mut backup)
                 .expect("failed to read user line!");
             match backup.trim() {
-                "y" => create_backup(source_dir, &backup_dir)?,
+                "y" => Self::create_backup(source_dir, &backup_dir)?,
                 "n" => {
                     warning!("Proceeding without backup!");
                 }
@@ -187,6 +157,35 @@ impl Linker {
                 }
             }
         }
+        Ok(())
+    }
+    fn copy_directory(source: &Path, dest: &Path) -> Result<()> {
+        for entry in fs::read_dir(source)? {
+            let entry = entry?;
+            let source_path = entry.path();
+            let dest_path = dest.join(source_path.file_name().unwrap());
+
+            if source_path.is_file() {
+                fs::copy(&source_path, &dest_path)?;
+            } else if source_path.is_dir() {
+                fs::create_dir_all(&dest_path)?;
+                Self::copy_directory(&source_path, &dest_path)?;
+            }
+        }
+
+        Ok(())
+    }
+    fn create_backup(source: &Path, backup: &Path) -> Result<()> {
+        fs::create_dir_all(backup)?;
+
+        let current_datetime = chrono::Local::now();
+        let backup_folder_name = format!("backup-{}", current_datetime.format("%Y-%m-%d_%H-%M-%S"));
+        let dest_dir = backup.join("backup").join(backup_folder_name);
+
+        Self::copy_directory(source, &dest_dir)?;
+
+        success!("Backup created!");
+
         Ok(())
     }
 }

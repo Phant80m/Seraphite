@@ -14,12 +14,12 @@ impl Args {
             println!("Destination path: {:?}", "test/config".home_path());
         }
         match &self.subcommand {
-            Command::Tether { dot_dir } => {
+            Command::Tether { dot_dir, config } => {
                 let dot_path = dot_dir
                     .clone()
                     .unwrap_or(format!("{}/dotfiles/", std::env::var("HOME").unwrap()))
                     .path();
-                let dot_path = dot_path.join(".config");
+                let dot_path = dot_path.join(config.clone().unwrap_or(".config".to_owned()));
                 let linker = Linker::new(dot_path, ".config".home_path());
                 linker.create_link()?;
             }
