@@ -8,6 +8,9 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Command {
+    /// -> Setup the dotfiles directory
+    #[clap(name = "setup")]
+    Setup,
     #[clap(name = "tether")]
     /// -> Link dotfiles into the config directory
     Tether {

@@ -49,3 +49,33 @@ macro_rules! success {
         );
     };
 }
+#[macro_export]
+macro_rules! cmd {
+    ($command:expr) => {{
+        use std::process::{Command, Stdio};
+
+        let mut command = Command::new(&$command[0]);
+        for arg in &$command[1..] {
+            command.arg(arg);
+        }
+
+        let cmd = command
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .spawn();
+
+        match cmd {
+            Ok(mut child) => {
+                let status = child.wait();
+                if let Ok(exit_status) = status {
+                    println!("Exited with status: {}", exit_status);
+                } else if let Err(err) = status {
+                    println!("Error waiting for process: {}", err);
+                }
+            }
+            Err(err) => {
+                println!("Error spawning process: {}", err);
+            }
+        }
+    }};
+}

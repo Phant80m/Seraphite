@@ -1,6 +1,6 @@
 use super::{Args, Command};
 use crate::linker::{Linker, ToPathbuf};
-use crate::sync::sync_deps;
+use crate::utils::{setup, sync};
 use anyhow::Result;
 use clap::Parser;
 
@@ -28,8 +28,9 @@ impl Args {
                 linker.remove_link()?;
             }
             Command::Sync { no_confirm } => {
-                sync_deps(*no_confirm);
+                sync(*no_confirm);
             }
+            Command::Setup => setup()?,
         }
         Ok(())
     }

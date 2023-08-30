@@ -84,16 +84,17 @@ impl Linker {
             }
         }
         for entry in path {
-            // remove unwrap later on:
             let entry = entry?.path().canonicalize()?;
             let entry_filename = entry.file_name().unwrap();
             let destination_entry = self.destination.join(entry_filename);
             let pretty = format!(
                 "~/.config/{}",
-                entry_filename.to_str().expect(&format!(
-                    "failed to decode path into utf8: {}",
-                    entry.to_string_lossy()
-                ))
+                entry_filename.to_str().unwrap_or_else(|| {
+                    panic!(
+                        "failed to decode path into utf8: {}",
+                        entry.to_string_lossy()
+                    )
+                })
             );
             if let Err(e) = symlink(&entry, &destination_entry) {
                 error!(
