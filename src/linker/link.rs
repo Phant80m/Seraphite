@@ -1,5 +1,3 @@
-use std::ffi::OsString;
-
 use {
     super::{Linker, ToPathbuf},
     crate::{error, success, warning},
@@ -7,12 +5,12 @@ use {
     owo_colors::OwoColorize,
     std::{
         collections::HashSet,
+        ffi::OsString,
         fs, io,
         os::unix::fs::symlink,
         path::{Path, PathBuf},
     },
 };
-
 impl Linker {
     pub fn new(i: PathBuf, d: PathBuf) -> Self {
         let to_hashset = |path: &PathBuf| -> HashSet<OsString> {
