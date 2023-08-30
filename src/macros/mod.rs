@@ -67,14 +67,12 @@ macro_rules! cmd {
         match cmd {
             Ok(mut child) => {
                 let status = child.wait();
-                if let Ok(exit_status) = status {
-                    println!("Exited with status: {}", exit_status);
-                } else if let Err(err) = status {
-                    println!("Error waiting for process: {}", err);
+                if let Err(err) = status {
+                    println!("Error waiting for process: {}", err.red().bold());
                 }
             }
             Err(err) => {
-                println!("Error spawning process: {}", err);
+                println!("Error spawning process: {}", err.red().bold());
             }
         }
     }};

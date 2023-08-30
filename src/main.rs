@@ -1,7 +1,6 @@
-use anyhow::Result;
-use seraphite::parser::Args;
+use {anyhow::Result, seraphite::parser::Args};
+
 fn main() -> Result<()> {
-    let args = Args::build();
-    args.handle(false)?;
+    Args::build().handle()?;
     Ok(())
 }

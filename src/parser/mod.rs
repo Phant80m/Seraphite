@@ -1,9 +1,12 @@
 use clap::{Parser, Subcommand};
 mod arguments;
 #[derive(Parser, Debug)]
+#[command(arg_required_else_help = true)]
 pub struct Args {
+    #[arg(short, long)]
+    version: bool,
     #[clap(subcommand)]
-    pub subcommand: Command,
+    pub subcommand: Option<Command>,
 }
 
 #[derive(Subcommand, Debug)]
@@ -29,5 +32,12 @@ pub enum Command {
     Sync {
         #[clap(short = 'y', long)]
         no_confirm: bool,
+    },
+    #[clap(name = "enchant")]
+    /// -> sync, tether & run post install script
+    Enchant {
+        #[arg(short, long)]
+        /// choose what shell runs post install script
+        shell: Option<String>,
     },
 }

@@ -3,18 +3,17 @@ use crate::{error, success, warning};
 use anyhow::Result;
 use owo_colors::OwoColorize;
 use std::fs;
-use std::process::exit;
 
 pub fn setup() -> Result<()> {
     let config: String = ".config".home_path().display().to_string();
     let dotdir = "dotfiles".home_path();
     if "dotfiles/".home_path().exists() {
         error!("Refusing to delete existing dotfile directory");
-        // exit(0)
+        return Ok(());
     }
     if let Err(e) = fs::create_dir_all(dotdir.join(".config").canonicalize()?) {
         error!("Failed to create dotfiles skeleton: {}", e);
-        exit(0)
+        return Ok(());
     }
     success!("Created dotfiles directory at: {}", dotdir.display().bold());
     success!(
