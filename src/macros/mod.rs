@@ -18,14 +18,14 @@ macro_rules! warning {
 #[macro_export]
 macro_rules! error {
     ($message:expr) => {
-        println!(
+        eprintln!(
             "{} {}",
             "[  ]".red().bold(),
             $message
         );
     };
     ($message:expr, $($arg:expr),*) => {
-        println!(
+        eprintln!(
             "{} {}",
             "[  ]".red().bold(),
             format!($message, $($arg),*)
