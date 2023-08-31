@@ -52,6 +52,7 @@ macro_rules! success {
 #[macro_export]
 macro_rules! cmd {
     ($command:expr) => {{
+        use crate::error;
         use std::process::{Command, Stdio};
 
         let mut command = Command::new(&$command[0]);
@@ -68,11 +69,11 @@ macro_rules! cmd {
             Ok(mut child) => {
                 let status = child.wait();
                 if let Err(err) = status {
-                    println!("Error waiting for process: {}", err.red().bold());
+                    error!("Error waiting for process: {}", err.red().bold());
                 }
             }
             Err(err) => {
-                println!("Error spawning process: {}", err.red().bold());
+                error!("Error spawning process: {}", err.red().bold());
             }
         }
     }};

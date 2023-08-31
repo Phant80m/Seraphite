@@ -1,3 +1,4 @@
+mod downloader;
 mod enchant;
 mod setup;
 mod sync;

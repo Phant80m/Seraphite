@@ -30,7 +30,7 @@ impl Args {
                 unlinker.remove_link()?;
             }
             Some(Command::Sync { no_confirm }) => {
-                sync(*no_confirm);
+                sync(*no_confirm)?;
             }
             Some(Command::Setup) => setup()?,
             Some(Command::Enchant { shell }) => {

@@ -7,5 +7,6 @@ edition = "2021"
 anyhow = "1.0.75"
 chrono = "0.4.26"
 clap = { version = "4.3.23", features = ["derive"] }
+git2 = "0.18.0"
 owo-colors = "3.5.0"
 which = "3.1"

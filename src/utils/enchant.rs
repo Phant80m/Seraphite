@@ -10,7 +10,7 @@ use super::sync;
 
 pub fn enchant(shell: String) -> Result<()> {
     // link and install deps
-    sync(false);
+    sync(false)?;
     success!("Dependencies should now be installed!");
     let linker = Linker::new("dotfiles/.config".home_path(), ".config".home_path());
     linker.create_link()?;

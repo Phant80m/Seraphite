@@ -1,21 +1,26 @@
 use crate::cmd;
 use crate::error;
 use crate::linker::ToPathbuf;
+use crate::utils::downloader::download;
+use crate::warning;
+use anyhow::Result;
 use owo_colors::OwoColorize;
 use std::fs;
 use which::which;
-pub fn sync(no_confirm: bool) {
+pub fn sync(no_confirm: bool) -> Result<()> {
     let dependencies_file = "dotfiles/dependencies".home_path();
     if !dependencies_file.exists() {
         error!("Dependency file not found!");
-        return;
+        return Ok(());
     }
 
     match which("paru") {
         Ok(paru_path) => paru_path,
         Err(_) => {
             error!("Paru not found in path, is it installed?");
-            return;
+            warning!("attempting to install paru!");
+            download("https://aur.archlinux.org/paru-bin.git")?;
+            return Ok(());
         }
     };
 
@@ -23,7 +28,7 @@ pub fn sync(no_confirm: bool) {
         Ok(content) => content,
         Err(err) => {
             error!("Error reading dependency file: {}", err);
-            return;
+            return Ok(());
         }
     };
 
@@ -40,4 +45,5 @@ pub fn sync(no_confirm: bool) {
 
         cmd!(command);
     }
+    Ok(())
 }
