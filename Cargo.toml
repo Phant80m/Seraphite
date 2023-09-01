@@ -1,6 +1,8 @@
 [package]
 name = "seraphite"
-version = "0.1.0"
+description = "Blazlingly fast dotfile manager!"
+license = "MIT OR Apache-2.0"
+version = "1.0.0"
 edition = "2021"
 
 [dependencies]
