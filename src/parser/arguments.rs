@@ -1,6 +1,7 @@
 use super::{Args, Command};
 use crate::linker::{Linker, ToPathbuf};
 use crate::utils::{enchant, setup, sync};
+use crate::warning;
 use crate::{success, PACKAGE, VERSION};
 use anyhow::Result;
 use clap::{Command as Cmd, CommandFactory, Parser};
@@ -40,7 +41,7 @@ impl Args {
         }
         if let Some(generator) = self.shell_completion {
             let mut cmd = Self::command();
-            eprintln!("Generating completion file for {generator:?}...");
+            warning!("Generating completion file for {generator:?}...");
             self.gen_completions(generator, &mut cmd);
         }
         Ok(())
