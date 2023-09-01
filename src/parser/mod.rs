@@ -28,7 +28,7 @@ pub enum Command {
         config: Option<String>,
     },
     #[clap(name = "untether")]
-    /// -> unink dotfiles from the config directory
+    /// -> unlink dotfiles from the config directory
     Untether,
     #[clap(name = "sync")]
     /// -> install dependencies from dependency file
