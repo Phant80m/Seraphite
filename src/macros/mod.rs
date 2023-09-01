@@ -52,8 +52,8 @@ macro_rules! success {
 #[macro_export]
 macro_rules! cmd {
     ($command:expr) => {{
-        use crate::error;
         use std::process::{Command, Stdio};
+        use $crate::error;
 
         let mut command = Command::new(&$command[0]);
         for arg in &$command[1..] {

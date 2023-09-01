@@ -1,10 +1,13 @@
 use clap::{Parser, Subcommand};
+use clap_complete::Shell;
 mod arguments;
 #[derive(Parser, Debug)]
 #[command(arg_required_else_help = true)]
 pub struct Args {
     #[arg(short, long)]
     version: bool,
+    #[arg(short, long)]
+    shell_completion: Option<Shell>,
     #[clap(subcommand)]
     pub subcommand: Option<Command>,
 }

@@ -3,14 +3,22 @@ use crate::linker::{Linker, ToPathbuf};
 use crate::utils::{enchant, setup, sync};
 use crate::{success, PACKAGE, VERSION};
 use anyhow::Result;
-use clap::Parser;
+use clap::{Command as Cmd, CommandFactory, Parser};
+use clap_complete::{generate, Generator};
 use owo_colors::OwoColorize;
-
 impl Args {
     pub fn build() -> Self {
         Args::parse()
     }
     pub fn handle(&self) -> Result<()> {
+        let arg = Self::parse();
+        if let Some(generator) = arg.shell_completion {
+            let mut cmd = Self::command();
+            eprintln!("Generating completion file for {generator:?}...");
+            Self::print_completions(generator, &mut cmd);
+        } else {
+            println!("{arg:#?}");
+        }
         if self.version {
             success!("{} build: {}", PACKAGE, VERSION.bold());
             return Ok(());
@@ -39,5 +47,9 @@ impl Args {
             None => {}
         }
         Ok(())
+    }
+    fn print_completions<G: Generator>(gen: G, cmd: &mut Cmd) {
+        use std::io;
+        generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
     }
 }
