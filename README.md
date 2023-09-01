@@ -3,7 +3,7 @@
 <h1>Seraphite</h1>
 <p>a simple, but powerful configuration manager for unix-like systems!</p>
 
-<h4> <span> · </span> <a href="https://github.com/phant80m/Seraphite/blob/master/readme.md"> Documentation </a> <span> · </span> <a href="https://github.com/phant80m/Seraphite/issues"> Report Bug </a> <span> · </span> <a href="https://github.com/phant80m/Seraphite/issues"> Request Feature </a> </h4>
+<h4> <span> · </span> <a href="https://github.com/phant80m/Seraphite/blob/master/README.md"> Documentation </a> <span> · </span> <a href="https://github.com/phant80m/Seraphite/issues"> Report Bug </a> <span> · </span> <a href="https://github.com/phant80m/Seraphite/issues"> Request Feature </a> </h4>
 
 
 </div>
