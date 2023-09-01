@@ -3,7 +3,7 @@
 <h1>Seraphite</h1>
 <p>a simple, but powerful configuration manager for unix-like systems!</p>
 
-<h4> <span> · </span> <a href="https://github.com/phant80m/Seraphite/blob/master/README.md"> Documentation </a> <span> · </span> <a href="https://github.com/phant80m/Seraphite/issues"> Report Bug </a> <span> · </span> <a href="https://github.com/phant80m/Seraphite/issues"> Request Feature </a> </h4>
+<h4> <span> · </span> <a href="https://github.com/phant80m/Seraphite/blob/master/readme.md"> Documentation </a> <span> · </span> <a href="https://github.com/phant80m/Seraphite/issues"> Report Bug </a> <span> · </span> <a href="https://github.com/phant80m/Seraphite/issues"> Request Feature </a> </h4>
 
 
 </div>
@@ -27,7 +27,7 @@
 
 ### :gear: Installation
 
-How to instal
+How to install:
 ```bash
 cargo install --git https://github.com/phant80m/seraphite
 ```
@@ -35,7 +35,10 @@ build manually
 ```bash
 git clone https://github.com/phant80m/seraphite && cargo build --release
 ```
-
+generate shell completions
+```bash
+seraphite --shell-completion <SHELL>
+```
 
 ## :compass: Roadmap
 
@@ -48,9 +51,9 @@ git clone https://github.com/phant80m/seraphite && cargo build --release
 
 ## :grey_question: FAQ
 
-- Does this work?
-- Well, yes it does work and pretty well if i may add.
-- Is it hard to use
-- no. It is incredibly simple to setup and use.
-- Can I use it with multiple configs
-- Yes. you can specify the dotfile dir and the config folder
+- Q: Does this work?
+- A: Well, yes it does work and pretty well if i may add.
+- Q: Is it hard to use
+- A: no. It is incredibly simple to setup and use.
+- Q: Can I use it with multiple configs
+- A: Yes. you can specify the dotfile dir and the config folder
