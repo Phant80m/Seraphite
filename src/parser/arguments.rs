@@ -11,14 +11,6 @@ impl Args {
         Args::parse()
     }
     pub fn handle(&self) -> Result<()> {
-        let arg = Self::parse();
-        if let Some(generator) = arg.shell_completion {
-            let mut cmd = Self::command();
-            eprintln!("Generating completion file for {generator:?}...");
-            Self::print_completions(generator, &mut cmd);
-        } else {
-            println!("{arg:#?}");
-        }
         if self.version {
             success!("{} build: {}", PACKAGE, VERSION.bold());
             return Ok(());
@@ -46,9 +38,14 @@ impl Args {
             }
             None => {}
         }
+        if let Some(generator) = self.shell_completion {
+            let mut cmd = Self::command();
+            eprintln!("Generating completion file for {generator:?}...");
+            self.gen_completions(generator, &mut cmd);
+        }
         Ok(())
     }
-    fn print_completions<G: Generator>(gen: G, cmd: &mut Cmd) {
+    fn gen_completions<G: Generator>(&self, gen: G, cmd: &mut Cmd) {
         use std::io;
         generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
     }
