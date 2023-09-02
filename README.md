@@ -1,7 +1,7 @@
  <div align='center'>
 
 <h1>Seraphite</h1>
-<p>a simple, but powerful configuration manager for unix-like systems!</p>
+<p>a simple, but powerful configuration manager for linux systems!</p>
 
 <h4> <span> · </span> <a href="https://github.com/phant80m/Seraphite/blob/master/README.md"> Documentation </a> <span> · </span> <a href="https://github.com/phant80m/Seraphite/issues"> Report Bug </a> <span> · </span> <a href="https://github.com/phant80m/Seraphite/issues"> Request Feature </a> </h4>
 
@@ -16,7 +16,7 @@
 
 
 ## :star2: About the Project
-
+⚠️  Warning: Some features only work on arch linux! ⚠️ 
 ### :dart: Features
 - Supports multiple configs
 - Blazingly fast!
