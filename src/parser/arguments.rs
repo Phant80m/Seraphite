@@ -1,5 +1,6 @@
 use super::{Args, Command};
 use crate::linker::{Linker, ToPathbuf};
+use crate::mddoc::doc;
 use crate::utils::{enchant, setup, sync};
 use crate::warning;
 use crate::{success, PACKAGE, VERSION};
@@ -37,6 +38,7 @@ impl Args {
             Some(Command::Enchant { shell }) => {
                 enchant(shell.clone().unwrap_or("bash".to_owned()))?
             }
+            Some(Command::Docs) => doc()?,
             None => {}
         }
         if let Some(generator) = self.shell_completion {

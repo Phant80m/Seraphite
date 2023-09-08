@@ -1,5 +1,6 @@
 pub mod linker;
 pub mod macros;
+pub mod mddoc;
 pub mod parser;
 pub mod utils;
 

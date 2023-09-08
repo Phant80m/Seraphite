@@ -43,4 +43,7 @@ pub enum Command {
         /// choose what shell runs post install script
         shell: Option<String>,
     },
+    #[clap(name = "docs")]
+    /// -> read the dotfile documentation!
+    Docs,
 }
