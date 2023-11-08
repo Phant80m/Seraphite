@@ -1,3 +1,4 @@
+pub mod fetch;
 pub mod linker;
 pub mod macros;
 pub mod mddoc;

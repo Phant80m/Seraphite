@@ -46,4 +46,7 @@ pub enum Command {
     #[clap(name = "docs")]
     /// -> read the dotfile documentation!
     Docs,
+    #[clap(name = "clone")]
+    /// -> Clone dotfiles repo into home/dotfiles
+    Clone { url: String, branch: Option<String> },
 }

@@ -1,4 +1,5 @@
 use super::{Args, Command};
+use crate::fetch::Fetch;
 use crate::linker::{Linker, ToPathbuf};
 use crate::mddoc::doc;
 use crate::utils::{enchant, setup, sync};
@@ -17,6 +18,7 @@ impl Args {
             success!("{} build: {}", PACKAGE, VERSION.bold());
             return Ok(());
         }
+        // sub command
         match &self.subcommand {
             Some(Command::Tether { dot_dir, config }) => {
                 let dot_path = dot_dir
@@ -39,6 +41,7 @@ impl Args {
                 enchant(shell.clone().unwrap_or("bash".to_owned()))?
             }
             Some(Command::Docs) => doc()?,
+            Some(Command::Clone { url, branch }) => Fetch::new(url.clone(), branch.clone()).clone(),
             None => {}
         }
         if let Some(generator) = self.shell_completion {

@@ -44,6 +44,7 @@ impl Linker {
                 return Err(e.into());
             }
         };
+
         let backup_dir = ".seraphite".home_path();
         let source = format!("{}/.config", std::env::var("HOME").unwrap());
         let source_dir = Path::new(&source);
