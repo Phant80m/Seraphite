@@ -67,7 +67,6 @@ fn run_app(skin: MadSkin) -> Result<(), Error> {
             Ok(Event::Key(KeyEvent { code, .. })) => match code {
                 Up => {
                     view.try_scroll_lines(-1);
-                    std::fs::write("/home/dev523/log.txt", view.scroll.to_string()).unwrap();
                     if view.scroll == old.0 && pages.current_page > 0 {
                         old = (0, 0);
                         pages.current_page -= 1;
@@ -78,7 +77,6 @@ fn run_app(skin: MadSkin) -> Result<(), Error> {
                 },
                 Down => {
                     view.try_scroll_lines(1);
-                    std::fs::write("/home/dev523/log.txt", view.scroll.to_string()).unwrap();
                     if view.scroll == old.1 && pages.current_page < pages.pages.len() - 1 {
                         old = (0, 0);
                         pages.current_page += 1;
