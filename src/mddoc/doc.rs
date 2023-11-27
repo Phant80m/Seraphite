@@ -31,6 +31,7 @@ fn clear_and_redraw<W: Write>(w: &mut W, view: &MadView) -> Result<(), Error> {
 fn run_app(skin: MadSkin) -> Result<(), Error> {
     let mut pages = Pages::construct();
     let mut w = stdout();
+    let mut old = (0, 0);
     queue!(w, EnterAlternateScreen)?;
     terminal::enable_raw_mode()?;
     queue!(w, Hide)?;
@@ -64,8 +65,28 @@ fn run_app(skin: MadSkin) -> Result<(), Error> {
         w.flush()?;
         match event::read() {
             Ok(Event::Key(KeyEvent { code, .. })) => match code {
-                Up => view.try_scroll_lines(-1),
-                Down => view.try_scroll_lines(1),
+                Up => {
+                    view.try_scroll_lines(-1);
+                    std::fs::write("/home/dev523/log.txt", view.scroll.to_string()).unwrap();
+                    if view.scroll == old.0 && pages.current_page > 0 {
+                        old = (0, 0);
+                        pages.current_page -= 1;
+                        view =
+                            MadView::from(pages.current_page_content(), view_area(), skin.clone());
+                    }
+                    old.0 = view.scroll;
+                },
+                Down => {
+                    view.try_scroll_lines(1);
+                    std::fs::write("/home/dev523/log.txt", view.scroll.to_string()).unwrap();
+                    if view.scroll == old.1 && pages.current_page < pages.pages.len() - 1 {
+                        old = (0, 0);
+                        pages.current_page += 1;
+                        view =
+                            MadView::from(pages.current_page_content(), view_area(), skin.clone());
+                    }
+                    old.1 = view.scroll;
+                },
                 PageUp => view.try_scroll_pages(-1),
                 PageDown => view.try_scroll_pages(1),
                 Left => {
