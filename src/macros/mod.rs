@@ -64,7 +64,6 @@ macro_rules! cmd {
             .stdout(Stdio::inherit())
             .stderr(Stdio::inherit())
             .spawn();
-
         match cmd {
             Ok(mut child) => {
                 let status = child.wait();
