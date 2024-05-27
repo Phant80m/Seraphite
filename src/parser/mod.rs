@@ -1,15 +1,8 @@
 use clap::{Parser, Subcommand};
 use clap_complete::Shell;
 mod arguments;
-
-const HELP_TEMPLATE: &str = r#"
-{bin} [ACTION] [FLAGS]
- 
-{all-args}
-"#;
-
 #[derive(Parser, Debug)]
-#[command(arg_required_else_help = true, help_template = HELP_TEMPLATE)]
+#[command(arg_required_else_help = true)]
 pub struct Args {
     #[arg(short, long)]
     version: bool,

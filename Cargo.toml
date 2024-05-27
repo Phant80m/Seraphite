@@ -1,4 +1,3 @@
-workspace = { members = ["tyyptest"] }
 [package]
 name = "seraphite"
 description = "Blazlingly fast dotfile manager!"
